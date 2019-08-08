@@ -31,11 +31,19 @@ RUN curl -L -o /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/relea
     chmod a+x /usr/local/bin/protoc && \
     rm -r /tmp/bin && \
     rm /tmp/protoc.zip
+
 RUN curl -L -o /tmp/spiral.tar.gz https://github.com/spiral/php-grpc/releases/download/v1.0.7/protoc-gen-php-grpc-1.0.7-linux-amd64.tar.gz && \
     tar -xvf /tmp/spiral.tar.gz protoc-gen-php-grpc-1.0.7-linux-amd64/protoc-gen-php-grpc &&  \
     mv /tmp/protoc-gen-php-grpc-1.0.7-linux-amd64/protoc-gen-php-grpc /usr/local/bin/protoc-gen-php-grpc && \
     chmod a+x /usr/local/bin/protoc-gen-php-grpc && \
     rm -r /tmp/protoc-gen-php-grpc-1.0.7-linux-amd64 && \
     rm /tmp/spiral.tar.gz
+
+FROM alpine:3.10
+
+COPY --from=0 /usr/local/bin/protoc /usr/local/bin/protoc
+COPY --from=0 /usr/local/bin/protoc-gen-php-grpc /usr/local/bin/protoc-gen-php-grpc
+COPY --from=0 /usr/local/bin/grpc_php_plugin /usr/local/bin/grpc_php_plugin
+WORKDIR /tmp/
 
 ENTRYPOINT ["protoc"]
