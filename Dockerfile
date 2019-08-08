@@ -39,7 +39,7 @@ RUN curl -L -o /tmp/spiral.tar.gz https://github.com/spiral/php-grpc/releases/do
     rm -r /tmp/protoc-gen-php-grpc-1.0.7-linux-amd64 && \
     rm /tmp/spiral.tar.gz
 
-FROM alpine:3.10
+FROM debian:stretch-slim
 
 COPY --from=0 /usr/local/bin/protoc /usr/local/bin/protoc
 COPY --from=0 /usr/local/bin/protoc-gen-php-grpc /usr/local/bin/protoc-gen-php-grpc
