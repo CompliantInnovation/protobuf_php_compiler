@@ -39,11 +39,25 @@ RUN curl -L -o /tmp/spiral.tar.gz https://github.com/spiral/php-grpc/releases/do
     rm -r /tmp/protoc-gen-php-grpc-1.0.7-linux-amd64 && \
     rm /tmp/spiral.tar.gz
 
+# Get protobuf includes
+RUN curl -L -o /tmp/protobuf.tar.gz https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.tar.gz && \
+    tar -xvf /tmp/protobuf.tar.gz protobuf-3.9.1/src/google &&  \
+    mv /tmp/protobuf-3.9.1/src/google /usr/include/google && \
+    chmod a+x /usr/local/bin/protoc-gen-php-grpc && \
+    rm -r /tmp/protobuf-3.9.1 && \
+    rm /tmp/protobuf.tar.gz
+
 FROM debian:stretch-slim
 
 COPY --from=0 /usr/local/bin/protoc /usr/local/bin/protoc
 COPY --from=0 /usr/local/bin/protoc-gen-php-grpc /usr/local/bin/protoc-gen-php-grpc
 COPY --from=0 /usr/local/bin/grpc_php_plugin /usr/local/bin/grpc_php_plugin
+COPY --from=0 /usr/include/google /usr/include/google
+RUN ln -s /usr/local/bin/grpc_php_plugin /usr/local/bin/protoc-gen-grpc && \
+    chmod a+x /usr/local/bin/protoc-gen-grpc
+ENV PATH="/usr/include/:${PATH}"
+
+
 WORKDIR /tmp/
 
-ENTRYPOINT ["protoc"]
+ENTRYPOINT ["protoc", "-I", "/usr/include"]
